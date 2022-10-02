@@ -1,6 +1,7 @@
 package io.github.teardrop13.authentication.rest;
 
 
+import io.github.teardrop13.authentication.dto.RegisterResponse;
 import io.github.teardrop13.authentication.dto.ResponseDTO;
 import io.github.teardrop13.authentication.dto.UserDTO;
 import io.github.teardrop13.authentication.session.SessionRegistry;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -22,6 +24,7 @@ import java.util.Map;
 @Slf4j
 public class AuthenticationController {
 
+    private static final String USER_EXISTS_ERROR = "User with such username already exists.";
     private final AuthenticationManager authenticationManager;
     private SessionRegistry sessionRegistry;
 
@@ -29,10 +32,17 @@ public class AuthenticationController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
-        User user = userService.create(userDTO.getUsername(), userDTO.getPassword(), userDTO.getEmail());
-        log.info("create user {}, id={}", user.getUsername(), user.getId());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<RegisterResponse> register(@RequestBody UserDTO userDTO) {
+        try {
+            userService.loadUserByUsername(userDTO.getUsername());
+            log.error(USER_EXISTS_ERROR);
+            return ResponseEntity.ok(RegisterResponse.fail(USER_EXISTS_ERROR));
+        } catch (UsernameNotFoundException e) {
+            User user = userService.create(userDTO.getUsername(), userDTO.getPassword(), userDTO.getEmail());
+
+            log.info("create user {}, id={}", user.getUsername(), user.getId());
+            return ResponseEntity.ok(RegisterResponse.success());
+        }
     }
 
 
