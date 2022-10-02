@@ -54,10 +54,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(
                         sessionFilter,
                         UsernamePasswordAuthenticationFilter.class
-                );
-//                .authorizeRequests()
-//                .antMatchers("/api/login").permitAll()
-//                .anyRequest().authenticated();
+                )
+                .authorizeRequests()
+                .antMatchers("/api/login").permitAll()
+                .anyRequest().authenticated();
     }
 
     @Override
