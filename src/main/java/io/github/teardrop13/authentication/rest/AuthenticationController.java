@@ -4,6 +4,8 @@ package io.github.teardrop13.authentication.rest;
 import io.github.teardrop13.authentication.dto.ResponseDTO;
 import io.github.teardrop13.authentication.dto.UserDTO;
 import io.github.teardrop13.authentication.session.SessionRegistry;
+import io.github.teardrop13.authentication.user.User;
+import io.github.teardrop13.authentication.user.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,16 @@ public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
     private SessionRegistry sessionRegistry;
+
+    private UserService userService;
+
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
+        User user = userService.create(userDTO.getUsername(), userDTO.getPassword(), userDTO.getEmail());
+        log.info("create user {}, id={}", user.getUsername(), user.getId());
+        return ResponseEntity.ok().build();
+    }
 
 
     @PostMapping("/login")

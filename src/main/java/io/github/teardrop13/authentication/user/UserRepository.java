@@ -1,26 +1,21 @@
 package io.github.teardrop13.authentication.user;
 
+import org.springframework.data.repository.Repository;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
 @Component
-public class UserRepository {
+public interface UserRepository extends Repository<User, Long> {
+    Optional<User> findUsersByUsername(String username);
 
-    private static final Map<String, User> REGISTERED_USERS = new HashMap<>(); // username na User
+    Optional<User> findById(Long id);
 
-    @PostConstruct
-    private void setupUsers() {
-        REGISTERED_USERS.put("user1", new User(0, "user1", "$2a$10$Xus67f/BaschOyQ1Zr/CGOOYdXzGmajchvduDHbSmxzABwzOtcH4u"));
-        REGISTERED_USERS.put("user2", new User(1, "user2", "$2a$10$Xus67f/BaschOyQ1Zr/CGOOYdXzGmajchvduDHbSmxzABwzOtcH4u"));
-    }
+    List<User> findAll();
 
-    public Optional<User> findUsersByUsername(final String username) {
-        return Optional.ofNullable(REGISTERED_USERS.get(username));
-    }
+    User save(User user);
 
+    void deleteById(Long id);
 
 }
