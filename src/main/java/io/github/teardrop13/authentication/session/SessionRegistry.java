@@ -54,7 +54,7 @@ public class SessionRegistry {
                 .filter(sessionId -> {
                     LocalDateTime lastActivity = SESSIONS.get(sessionId).getLastActivity();
                     Duration duration = Duration.between(lastActivity, now);
-                    return duration.minus(EXPIRE_TIME).isPositive();
+                    return !duration.minus(EXPIRE_TIME).isNegative();
                 }).toList();
 
         sessionIdToRemove.forEach(sessionId -> removeSession(sessionId));
