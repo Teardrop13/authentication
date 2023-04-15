@@ -13,7 +13,7 @@ import java.util.*;
 @Slf4j
 public class SessionRegistry {
 
-    private static final Duration EXPIRE_TIME = Duration.ofSeconds(60);
+    private static final Duration EXPIRE_TIME = Duration.ofSeconds(600);
 
     private static final Map<String, Session> SESSIONS = new HashMap<>();
 

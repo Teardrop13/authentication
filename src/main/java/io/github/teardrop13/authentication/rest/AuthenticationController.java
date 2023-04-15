@@ -1,9 +1,9 @@
 package io.github.teardrop13.authentication.rest;
 
-
+import io.github.teardrop13.authentication.dto.LoginRequest;
+import io.github.teardrop13.authentication.dto.RegisterRequest;
 import io.github.teardrop13.authentication.dto.RegisterResponse;
-import io.github.teardrop13.authentication.dto.ResponseDTO;
-import io.github.teardrop13.authentication.dto.UserDTO;
+import io.github.teardrop13.authentication.dto.LoginResponse;
 import io.github.teardrop13.authentication.session.SessionRegistry;
 import io.github.teardrop13.authentication.user.User;
 import io.github.teardrop13.authentication.user.UserService;
@@ -13,9 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @AllArgsConstructor
@@ -23,35 +28,37 @@ import java.util.Map;
 @Slf4j
 public class AuthenticationController {
 
-    private static final String USER_EXISTS_ERROR = "User with such username already exists.";
     private final AuthenticationManager authenticationManager;
     private SessionRegistry sessionRegistry;
-
     private UserService userService;
 
-
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(@RequestBody UserDTO userDTO) {
-        try {
-            userService.loadUserByUsername(userDTO.getUsername());
-            log.error(USER_EXISTS_ERROR);
-            return ResponseEntity.ok(RegisterResponse.fail(USER_EXISTS_ERROR));
-        } catch (UsernameNotFoundException e) {
-            User user = userService.create(userDTO.getUsername(), userDTO.getPassword(), userDTO.getEmail());
+    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
+        if (!Objects.equals(request.getPassword(), request.getPassword2())) {
+            return ResponseEntity.ok(RegisterResponse.fail("Confirmation password did not match."));
+        }
 
-            log.info("create user {}, id={}", user.getUsername(), user.getId());
+        if (!userService.checkIfUserExists(request.getUsername(), request.getEmail())) {
+            User user = userService.create(request.getUsername(), request.getPassword(), request.getEmail());
+            log.info("Created user {}, email={} id={}", user.getUsername(), user.getEmail(), user.getId());
             return ResponseEntity.ok(RegisterResponse.success());
+        } else {
+            return ResponseEntity.ok(RegisterResponse.fail("User with provided email or username already exists."));
         }
     }
 
-
     @PostMapping("/login")
-    public ResponseEntity<ResponseDTO> login(@RequestBody UserDTO user) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-        String sessionId = sessionRegistry.registerSession(user.getUsername());
-        ResponseDTO response = new ResponseDTO(sessionId);
-        log.info("user {} authenticated", user.getUsername());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        try {
+            User user = userService.loadUserByEmail(request.getEmail());
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword()));
+            String sessionId = sessionRegistry.registerSession(user.getUsername());
+            LoginResponse response = LoginResponse.success(sessionId);
+            log.info("user {} authenticated", user.getUsername());
+            return ResponseEntity.ok(response);
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.ok(LoginResponse.fail("User not found for email: " + request.getEmail()));
+        }
     }
 
 

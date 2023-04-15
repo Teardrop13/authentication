@@ -8,14 +8,17 @@ import java.util.Optional;
 
 @Component
 public interface UserRepository extends Repository<User, Long> {
-    Optional<User> findUsersByUsername(String username);
 
-    Optional<User> findById(Long id);
+	Optional<User> findUsersByUsername(String username);
 
-    List<User> findAll();
+	Optional<User> findUsersByEmail(String email);
 
-    User save(User user);
+	Optional<User> findById(Long id);
 
-    void deleteById(Long id);
+	List<User> findAll();
+
+	User save(User user);
+
+	void deleteById(Long id);
 
 }

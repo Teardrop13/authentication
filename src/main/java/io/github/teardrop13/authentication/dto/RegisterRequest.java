@@ -5,7 +5,10 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class ResponseDTO {
+public class RegisterRequest {
 
-    private String sessionId;
+	private String username;
+	private String password;
+	private String password2;
+	private String email;
 }
