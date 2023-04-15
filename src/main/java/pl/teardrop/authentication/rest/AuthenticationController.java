@@ -1,12 +1,5 @@
 package pl.teardrop.authentication.rest;
 
-import pl.teardrop.authentication.dto.LoginRequest;
-import pl.teardrop.authentication.dto.LoginResponse;
-import pl.teardrop.authentication.dto.RegisterRequest;
-import pl.teardrop.authentication.dto.RegisterResponse;
-import pl.teardrop.authentication.session.SessionRegistry;
-import pl.teardrop.authentication.user.User;
-import pl.teardrop.authentication.user.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.teardrop.authentication.dto.LoginRequest;
+import pl.teardrop.authentication.dto.LoginResponse;
+import pl.teardrop.authentication.dto.RegisterRequest;
+import pl.teardrop.authentication.dto.RegisterResponse;
+import pl.teardrop.authentication.session.SessionRegistry;
+import pl.teardrop.authentication.user.User;
+import pl.teardrop.authentication.user.UserService;
 
 import java.util.Map;
 import java.util.Objects;
@@ -40,7 +40,7 @@ public class AuthenticationController {
 
 		if (!userService.checkIfUserExists(request.getUsername(), request.getEmail())) {
 			User user = userService.create(request.getUsername(), request.getPassword(), request.getEmail());
-			log.info("Created user {}, email={} id={}", user.getUsername(), user.getEmail(), user.getId());
+			log.info("Successful user registration {}, email={} id={}", user.getUsername(), user.getEmail(), user.getId());
 			return ResponseEntity.ok(RegisterResponse.success());
 		} else {
 			return ResponseEntity.ok(RegisterResponse.fail("User with provided email or username already exists."));

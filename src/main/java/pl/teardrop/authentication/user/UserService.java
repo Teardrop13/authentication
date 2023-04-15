@@ -56,6 +56,7 @@ public class UserService implements UserDetailsService {
 		user.setEmail(email);
 
 		User userAdded = save(user);
+		log.info("Created user {}, email={} id={}", userAdded.getUsername(), userAdded.getEmail(), userAdded.getId());
 
 		runAfterUserCreation(userAdded);
 
