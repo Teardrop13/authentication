@@ -1,4 +1,4 @@
-package io.github.teardrop13.authentication.dto;
+package pl.teardrop.authentication.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

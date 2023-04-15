@@ -1,12 +1,12 @@
-package io.github.teardrop13.authentication.rest;
+package pl.teardrop.authentication.rest;
 
-import io.github.teardrop13.authentication.dto.LoginRequest;
-import io.github.teardrop13.authentication.dto.LoginResponse;
-import io.github.teardrop13.authentication.dto.RegisterRequest;
-import io.github.teardrop13.authentication.dto.RegisterResponse;
-import io.github.teardrop13.authentication.session.SessionRegistry;
-import io.github.teardrop13.authentication.user.User;
-import io.github.teardrop13.authentication.user.UserService;
+import pl.teardrop.authentication.dto.LoginRequest;
+import pl.teardrop.authentication.dto.LoginResponse;
+import pl.teardrop.authentication.dto.RegisterRequest;
+import pl.teardrop.authentication.dto.RegisterResponse;
+import pl.teardrop.authentication.session.SessionRegistry;
+import pl.teardrop.authentication.user.User;
+import pl.teardrop.authentication.user.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

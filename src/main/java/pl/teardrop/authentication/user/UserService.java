@@ -1,4 +1,4 @@
-package io.github.teardrop13.authentication.user;
+package pl.teardrop.authentication.user;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

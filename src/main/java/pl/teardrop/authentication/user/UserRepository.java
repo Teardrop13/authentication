@@ -1,4 +1,4 @@
-package io.github.teardrop13.authentication.user;
+package pl.teardrop.authentication.user;
 
 import org.springframework.data.repository.Repository;
 import org.springframework.stereotype.Component;

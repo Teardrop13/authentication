@@ -1,4 +1,4 @@
-package io.github.teardrop13.authentication.session;
+package pl.teardrop.authentication.session;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;

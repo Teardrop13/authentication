@@ -1,4 +1,4 @@
-package io.github.teardrop13.authentication.session;
+package pl.teardrop.authentication.session;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;

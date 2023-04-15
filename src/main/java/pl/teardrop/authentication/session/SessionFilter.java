@@ -1,8 +1,8 @@
-package io.github.teardrop13.authentication.session;
+package pl.teardrop.authentication.session;
 
 import com.google.common.base.Strings;
-import io.github.teardrop13.authentication.user.User;
-import io.github.teardrop13.authentication.user.UserService;
+import pl.teardrop.authentication.user.User;
+import pl.teardrop.authentication.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

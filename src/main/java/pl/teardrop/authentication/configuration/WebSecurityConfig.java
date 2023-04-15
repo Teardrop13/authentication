@@ -1,7 +1,7 @@
-package io.github.teardrop13.authentication.configuration;
+package pl.teardrop.authentication.configuration;
 
-import io.github.teardrop13.authentication.session.SessionFilter;
-import io.github.teardrop13.authentication.user.UserService;
+import pl.teardrop.authentication.session.SessionFilter;
+import pl.teardrop.authentication.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,10 +37,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userService).passwordEncoder(passwordEncoder);
     }
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/api/register");
-    }
+//    @Override
+//    public void configure(WebSecurity web) throws Exception {
+//        web.ignoring().antMatchers("/api/register");
+//    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -55,9 +54,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         sessionFilter,
                         UsernamePasswordAuthenticationFilter.class
                 )
-                .authorizeRequests()
-                .antMatchers("/api/login").permitAll()
-                .anyRequest().authenticated();
+                .authorizeRequests().antMatchers("/api/login", "/api/register").permitAll()
+                .and().authorizeRequests().anyRequest().authenticated();
     }
 
     @Override

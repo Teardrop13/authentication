@@ -8,7 +8,7 @@
         <version>2.7.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>io.github.teardrop13</groupId>
+    <groupId>pl.teardrop</groupId>
     <artifactId>authentication</artifactId>
     <version>0.1</version>
     <name>authentication</name>

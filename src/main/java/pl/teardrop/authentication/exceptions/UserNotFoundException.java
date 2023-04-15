@@ -1,4 +1,4 @@
-package io.github.teardrop13.authentication.exceptions;
+package pl.teardrop.authentication.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
