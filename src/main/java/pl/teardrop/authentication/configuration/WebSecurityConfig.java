@@ -1,8 +1,6 @@
 package pl.teardrop.authentication.configuration;
 
-import pl.teardrop.authentication.session.SessionFilter;
-import pl.teardrop.authentication.user.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -14,23 +12,23 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import pl.teardrop.authentication.session.SessionFilter;
+import pl.teardrop.authentication.user.UserService;
 
 import javax.servlet.http.HttpServletResponse;
 
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private SessionFilter sessionFilter;
+    private final SessionFilter sessionFilter;
 
-    @Autowired
     @Lazy
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
