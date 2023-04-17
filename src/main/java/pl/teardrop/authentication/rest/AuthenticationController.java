@@ -20,7 +20,6 @@ import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserService;
 
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @AllArgsConstructor
@@ -34,10 +33,6 @@ public class AuthenticationController {
 
 	@PostMapping("/register")
 	public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
-		if (!Objects.equals(request.getPassword(), request.getPassword2())) {
-			return ResponseEntity.ok(RegisterResponse.fail("Confirmation password did not match."));
-		}
-
 		if (!userService.checkIfUserExists(request.getUsername(), request.getEmail())) {
 			User user = userService.create(request.getUsername(), request.getPassword(), request.getEmail());
 			log.info("Successful user registration {}, email={} id={}", user.getUsername(), user.getEmail(), user.getId());
