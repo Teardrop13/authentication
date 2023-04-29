@@ -32,9 +32,9 @@ public class SessionFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        final String sessionId = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String bearer = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (Strings.isNullOrEmpty(sessionId)) {
+        if (Strings.isNullOrEmpty(bearer) || bearer.length() <= 7) {
             SecurityContextHolder.clearContext();
             HttpSession httpSession = request.getSession(false);
             if (httpSession != null) {
@@ -43,6 +43,9 @@ public class SessionFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
+        String sessionId = bearer.substring(7);
+
         final Session session = sessionRegistry.getSessionForSessionId(sessionId);
 
         if (session == null) {
