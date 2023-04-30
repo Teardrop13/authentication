@@ -33,7 +33,7 @@ public class WebSecurityConfig {
 				.cors().and()
 				.csrf().disable()//todo włączyć
 				.exceptionHandling().authenticationEntryPoint(
-						(request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage())
+						(request, response, authException) -> response.sendError(response.getStatus(), authException.getMessage())
 				).and()
 				.addFilterBefore(
 						sessionFilter,

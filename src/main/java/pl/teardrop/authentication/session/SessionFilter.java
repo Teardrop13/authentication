@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class SessionFilter extends OncePerRequestFilter {
             if (httpSession != null) {
                 httpSession.invalidate();
             }
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
             filterChain.doFilter(request, response);
             return;
         }
@@ -54,6 +56,7 @@ public class SessionFilter extends OncePerRequestFilter {
             if (httpSession != null) {
                 httpSession.invalidate();
             }
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
             filterChain.doFilter(request, response);
             return;
         }
