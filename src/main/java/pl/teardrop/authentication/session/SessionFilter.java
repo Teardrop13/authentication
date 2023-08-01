@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserService;
@@ -24,7 +25,7 @@ import java.io.IOException;
 public class SessionFilter extends OncePerRequestFilter {
 
     private final SessionRegistry sessionRegistry;
-
+    @Lazy
     private final UserService userService;
 
 
