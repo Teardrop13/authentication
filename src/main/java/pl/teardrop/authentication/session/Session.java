@@ -11,14 +11,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Getter
 public class Session {
-    @NonNull
-    private String username;
 
-    private final Map<String, Object> cache = new HashMap<>();
+	@NonNull
+	private String username;
+	private final Map<String, Object> cache = new HashMap<>();
+	private LocalDateTime lastActivity = LocalDateTime.now();
 
-    private LocalDateTime lastActivity = LocalDateTime.now();
-
-    public void updateLastActivity() {
-        lastActivity = LocalDateTime.now();
-    }
+	public void updateLastActivity() {
+		lastActivity = LocalDateTime.now();
+	}
 }

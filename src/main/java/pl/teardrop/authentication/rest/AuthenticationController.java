@@ -22,8 +22,8 @@ import pl.teardrop.authentication.user.UserService;
 import java.util.Map;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("/api/auth")
+@AllArgsConstructor
 @Slf4j
 public class AuthenticationController {
 
