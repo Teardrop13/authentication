@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class SessionFilter extends OncePerRequestFilter {
 
 	private final SessionRegistry sessionRegistry;
@@ -34,8 +36,10 @@ public class SessionFilter extends OncePerRequestFilter {
 									FilterChain filterChain) throws ServletException, IOException {
 
 		final String bearer = request.getHeader(HttpHeaders.AUTHORIZATION);
+		log.debug("Token: {}", bearer);
 
 		if (Strings.isNullOrEmpty(bearer) || bearer.length() <= 7) {
+			log.debug("Invalid token received: {}", bearer);
 			SecurityContextHolder.clearContext();
 			HttpSession httpSession = request.getSession(false);
 			if (httpSession != null) {
@@ -43,6 +47,7 @@ public class SessionFilter extends OncePerRequestFilter {
 			}
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			filterChain.doFilter(request, response);
+			log.debug("Session invalidated");
 			return;
 		}
 
@@ -51,6 +56,7 @@ public class SessionFilter extends OncePerRequestFilter {
 		final Session session = sessionRegistry.getSessionForSessionId(sessionId);
 
 		if (session == null) {
+			log.debug("Session not found for sessionId={}", sessionId);
 			SecurityContextHolder.clearContext();
 			HttpSession httpSession = request.getSession(false);
 			if (httpSession != null) {
@@ -58,6 +64,7 @@ public class SessionFilter extends OncePerRequestFilter {
 			}
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			filterChain.doFilter(request, response);
+			log.debug("Session invalidated");
 			return;
 		}
 
@@ -73,6 +80,7 @@ public class SessionFilter extends OncePerRequestFilter {
 
 		auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 		SecurityContextHolder.getContext().setAuthentication(auth);
+		log.debug("User username={}, id={} authenticated", user.getUsername(), user.getId());
 		filterChain.doFilter(request, response);
 	}
 }

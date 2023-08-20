@@ -23,14 +23,14 @@ public class DefaultUserService implements UserService {
 			loadUserByUsername(username);
 			return true;
 		} catch (UsernameNotFoundException e) {
-			log.info("User not found for username: " + username);
+			log.info("User not found for username: {}", username);
 		}
 
 		try {
 			loadUserByEmail(email);
 			return true;
 		} catch (UserNotFoundException e) {
-			log.info("User not found for email: " + email);
+			log.info("User not found for email: {}", email);
 		}
 
 		return false;
