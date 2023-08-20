@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -15,6 +14,7 @@ import pl.teardrop.authentication.dto.LoginRequest;
 import pl.teardrop.authentication.dto.LoginResponse;
 import pl.teardrop.authentication.dto.RegisterRequest;
 import pl.teardrop.authentication.dto.RegisterResponse;
+import pl.teardrop.authentication.exceptions.UserNotFoundException;
 import pl.teardrop.authentication.session.SessionRegistry;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserService;
@@ -28,8 +28,8 @@ import java.util.Map;
 public class AuthenticationController {
 
 	private final AuthenticationManager authenticationManager;
-	private SessionRegistry sessionRegistry;
-	private UserService userService;
+	private final SessionRegistry sessionRegistry;
+	private final UserService userService;
 
 	@PostMapping("/register")
 	public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
@@ -51,24 +51,21 @@ public class AuthenticationController {
 			LoginResponse response = LoginResponse.success(sessionId);
 			log.info("user {} authenticated", user.getUsername());
 			return ResponseEntity.ok(response);
-		} catch (UsernameNotFoundException e) {
+		} catch (UserNotFoundException e) {
 			return ResponseEntity.ok(LoginResponse.fail("User not found for email: " + request.getEmail()));
 		}
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<?> logout(@RequestHeader Map<String, String> headers) {
+	public void logout(@RequestHeader Map<String, String> headers) {
 		final String sessionId = headers.get("authorization");
-		if (sessionRegistry.removeSession(sessionId) != null) {
-			return ResponseEntity.ok().build();
-		} else {
-			return ResponseEntity.notFound().build();
+		if (sessionRegistry.removeSession(sessionId) == null) {
+			throw new UserNotFoundException("Session not found for id: " + sessionId);
 		}
 	}
 
 	@PostMapping("/is-authenticated")
-	public ResponseEntity<?> isAuthenticated(@RequestHeader Map<String, String> headers) {
+	public void isAuthenticated() {
 		log.info("is-authenticated request");
-		return ResponseEntity.ok().build();
 	}
 }

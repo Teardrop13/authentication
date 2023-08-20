@@ -31,15 +31,22 @@ public class WebSecurityConfig {
 		http
 				.cors().and()
 				.csrf().disable()//todo włączyć
-				.exceptionHandling().authenticationEntryPoint(
-						(request, response, authException) -> response.sendError(response.getStatus(), authException.getMessage())
-				).and()
+				.exceptionHandling()
+				.authenticationEntryPoint(
+						(request, response, authException) -> {
+							response.sendError(response.getStatus(), authException.getMessage());
+						}
+				)
+				.and()
 				.addFilterBefore(
 						sessionFilter,
 						UsernamePasswordAuthenticationFilter.class
 				)
-				.authorizeHttpRequests().requestMatchers(new AntPathRequestMatcher("/api/auth/login"), new AntPathRequestMatcher("/api/auth/register")).permitAll()
-				.and().authorizeHttpRequests().anyRequest().authenticated();
+				.authorizeHttpRequests()
+				.requestMatchers(new AntPathRequestMatcher("/api/auth/login"),
+								 new AntPathRequestMatcher("/api/auth/register")).permitAll()
+				.requestMatchers(new AntPathRequestMatcher("/error")).anonymous()
+				.anyRequest().authenticated();
 
 		return http.build();
 	}

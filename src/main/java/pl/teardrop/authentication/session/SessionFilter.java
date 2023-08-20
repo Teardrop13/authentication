@@ -6,17 +6,17 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpStatus;
-import pl.teardrop.authentication.user.User;
-import pl.teardrop.authentication.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pl.teardrop.authentication.user.User;
+import pl.teardrop.authentication.user.UserService;
 
 import java.io.IOException;
 
@@ -24,56 +24,55 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class SessionFilter extends OncePerRequestFilter {
 
-    private final SessionRegistry sessionRegistry;
-    @Lazy
-    private final UserService userService;
+	private final SessionRegistry sessionRegistry;
+	@Lazy
+	private final UserService userService;
 
+	@Override
+	protected void doFilterInternal(HttpServletRequest request,
+									HttpServletResponse response,
+									FilterChain filterChain) throws ServletException, IOException {
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+		final String bearer = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        final String bearer = request.getHeader(HttpHeaders.AUTHORIZATION);
+		if (Strings.isNullOrEmpty(bearer) || bearer.length() <= 7) {
+			SecurityContextHolder.clearContext();
+			HttpSession httpSession = request.getSession(false);
+			if (httpSession != null) {
+				httpSession.invalidate();
+			}
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+			filterChain.doFilter(request, response);
+			return;
+		}
 
-        if (Strings.isNullOrEmpty(bearer) || bearer.length() <= 7) {
-            SecurityContextHolder.clearContext();
-            HttpSession httpSession = request.getSession(false);
-            if (httpSession != null) {
-                httpSession.invalidate();
-            }
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            filterChain.doFilter(request, response);
-            return;
-        }
+		String sessionId = bearer.substring(7);
 
-        String sessionId = bearer.substring(7);
+		final Session session = sessionRegistry.getSessionForSessionId(sessionId);
 
-        final Session session = sessionRegistry.getSessionForSessionId(sessionId);
+		if (session == null) {
+			SecurityContextHolder.clearContext();
+			HttpSession httpSession = request.getSession(false);
+			if (httpSession != null) {
+				httpSession.invalidate();
+			}
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+			filterChain.doFilter(request, response);
+			return;
+		}
 
-        if (session == null) {
-            SecurityContextHolder.clearContext();
-            HttpSession httpSession = request.getSession(false);
-            if (httpSession != null) {
-                httpSession.invalidate();
-            }
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            filterChain.doFilter(request, response);
-            return;
-        }
+		session.updateLastActivity();
 
-        session.updateLastActivity();
+		User user = userService.loadUserByUsername(session.getUsername());
 
-        User user = userService.loadUserByUsername(session.getUsername());
+		final UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+				user,
+				null,
+				user.getAuthorities()
+		);
 
-        final UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                user,
-                null,
-                user.getAuthorities()
-        );
-
-        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        filterChain.doFilter(request, response);
-    }
+		auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+		SecurityContextHolder.getContext().setAuthentication(auth);
+		filterChain.doFilter(request, response);
+	}
 }

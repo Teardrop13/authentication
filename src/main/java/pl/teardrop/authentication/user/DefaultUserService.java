@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import pl.teardrop.authentication.exceptions.UserNotFoundException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class DefaultUserService implements UserService {
 		try {
 			loadUserByEmail(email);
 			return true;
-		} catch (UsernameNotFoundException e) {
+		} catch (UserNotFoundException e) {
 			log.info("User not found for email: " + email);
 		}
 
@@ -42,9 +43,9 @@ public class DefaultUserService implements UserService {
 	}
 
 	@Override
-	public User loadUserByEmail(String email) throws UsernameNotFoundException {
+	public User loadUserByEmail(String email) throws UserNotFoundException {
 		return userRepository.findUsersByEmail(email)
-				.orElseThrow(() -> new UsernameNotFoundException("Failed to find user with email: " + email));
+				.orElseThrow(() -> new UserNotFoundException("Failed to find user with email: " + email));
 	}
 
 	@Override
