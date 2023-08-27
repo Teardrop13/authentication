@@ -5,8 +5,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import pl.teardrop.authentication.exceptions.UserNotFoundException;
 
+import java.util.Optional;
+
 public interface UserService extends UserDetailsService {
 
+	Optional<User> getById(UserId userId);
 	boolean checkIfUserExists(@NonNull String username, @NonNull String email);
 
 	@Override

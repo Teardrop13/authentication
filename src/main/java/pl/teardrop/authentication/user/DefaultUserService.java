@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.teardrop.authentication.exceptions.UserNotFoundException;
 
+import java.util.Optional;
+
 @Slf4j
 @RequiredArgsConstructor
 public class DefaultUserService implements UserService {
@@ -16,6 +18,11 @@ public class DefaultUserService implements UserService {
 
 	@Lazy
 	private final PasswordEncoder passwordEncoder;
+
+	@Override
+	public Optional<User> getById(UserId userId) {
+		return userRepository.findById(userId.getId());
+	}
 
 	@Override
 	public boolean checkIfUserExists(@NonNull String username, @NonNull String email) {

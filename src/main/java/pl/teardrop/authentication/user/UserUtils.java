@@ -23,4 +23,8 @@ public class UserUtils {
 		Object principal = authentication.getPrincipal();
 		return (User) principal;
 	}
+
+	public static UserId currentUserId() {
+		return currentUser().userId();
+	}
 }
