@@ -1,5 +1,6 @@
 package pl.teardrop.authentication.rest;
 
+import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -58,8 +59,13 @@ public class AuthenticationController {
 
 	@PostMapping("/logout")
 	public void logout(@RequestHeader Map<String, String> headers) {
-		final String sessionId = headers.get("authorization");
-		if (sessionRegistry.removeSession(sessionId) == null) {
+		final String bearer = headers.get("authorization");
+		String sessionId = null;
+		if (!Strings.isNullOrEmpty(bearer) && bearer.length() >= 7) {
+			sessionId = bearer.substring(7);
+		}
+
+		if (sessionId != null && sessionRegistry.removeSession(sessionId) == null) {
 			throw new UserNotFoundException("Session not found for id: " + sessionId);
 		}
 	}
