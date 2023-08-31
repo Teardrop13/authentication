@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -41,10 +40,6 @@ public class SessionFilter extends OncePerRequestFilter {
 		if (Strings.isNullOrEmpty(bearer) || bearer.length() <= 7) {
 			log.debug("Invalid token received: {}", bearer);
 			SecurityContextHolder.clearContext();
-			HttpSession httpSession = request.getSession(false);
-			if (httpSession != null) {
-				httpSession.invalidate();
-			}
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			filterChain.doFilter(request, response);
 			log.debug("Session invalidated");
@@ -58,10 +53,6 @@ public class SessionFilter extends OncePerRequestFilter {
 		if (session == null) {
 			log.debug("Session not found for sessionId={}", sessionId);
 			SecurityContextHolder.clearContext();
-			HttpSession httpSession = request.getSession(false);
-			if (httpSession != null) {
-				httpSession.invalidate();
-			}
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			filterChain.doFilter(request, response);
 			log.debug("Session invalidated");
