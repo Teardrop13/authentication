@@ -15,7 +15,6 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'mvn test || true'
-                junit '**/target/*.xml'
             }
         }
         stage('Deploy-m2') {
