@@ -12,7 +12,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pl.teardrop.authentication.user.User;
@@ -39,10 +38,8 @@ public class SessionFilter extends OncePerRequestFilter {
 
 		if (Strings.isNullOrEmpty(bearer) || bearer.length() <= 7) {
 			log.debug("Invalid token received: {}", bearer);
-			SecurityContextHolder.clearContext();
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			filterChain.doFilter(request, response);
-			log.debug("Session invalidated");
 			return;
 		}
 
@@ -52,10 +49,8 @@ public class SessionFilter extends OncePerRequestFilter {
 
 		if (session == null) {
 			log.debug("Session not found for sessionId={}", sessionId);
-			SecurityContextHolder.clearContext();
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			filterChain.doFilter(request, response);
-			log.debug("Session invalidated");
 			return;
 		}
 
@@ -69,7 +64,6 @@ public class SessionFilter extends OncePerRequestFilter {
 				user.getAuthorities()
 		);
 
-		auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		log.debug("User username={}, id={} authenticated", user.getUsername(), user.getId());
 		filterChain.doFilter(request, response);
