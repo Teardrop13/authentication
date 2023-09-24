@@ -7,11 +7,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import pl.teardrop.authentication.exceptions.UserNotFoundException;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -70,6 +72,35 @@ class DefaultUserServiceTest {
 
 		User returnedUser = userService.loadUserByUsername(username);
 		assertEquals(returnedUser, user);
+	}
+
+	@Test
+	void loadUserByUsername_whenUserExistsDoesNotExist() {
+		String username = "user";
+
+		when(userRepository.findUsersByUsername(username)).thenReturn(Optional.empty());
+
+		assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername(username));
+	}
+
+	@Test
+	void loadUserByEmail_whenUserExists() {
+		String email = "user@gmail.com";
+		User user = User.builder().email(email).build();
+
+		when(userRepository.findUsersByEmail(email)).thenReturn(Optional.of(user));
+
+		User returnedUser = userService.loadUserByEmail(email);
+		assertEquals(returnedUser, user);
+	}
+
+	@Test
+	void loadUserByEmail_whenUserExistsDoesNotExist() {
+		String email = "user@gmail.com";
+
+		when(userRepository.findUsersByEmail(email)).thenReturn(Optional.empty());
+
+		assertThrows(UserNotFoundException.class, () -> userService.loadUserByEmail(email));
 	}
 
 }
