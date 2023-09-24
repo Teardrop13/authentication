@@ -14,7 +14,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'mvn test || true'
-                junit '**/target/*.xml'
+                junit '**/target/surefire-reports/*.xml'
                 archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
         }
