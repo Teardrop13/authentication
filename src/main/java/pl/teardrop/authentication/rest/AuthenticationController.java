@@ -1,8 +1,8 @@
 package pl.teardrop.authentication.rest;
 
-import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.teardrop.authentication.dto.LoginRequest;
 import pl.teardrop.authentication.dto.LoginResponse;
 import pl.teardrop.authentication.dto.RegisterRequest;
-import pl.teardrop.authentication.dto.RegisterResponse;
+import pl.teardrop.authentication.exceptions.FailedRetrievingAuthorizationToken;
 import pl.teardrop.authentication.exceptions.UserNotFoundException;
+import pl.teardrop.authentication.session.AuthorizationUtil;
 import pl.teardrop.authentication.session.SessionRegistry;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserService;
@@ -33,45 +34,43 @@ public class AuthenticationController {
 	private final UserService userService;
 
 	@PostMapping("/register")
-	public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
+	public ResponseEntity<Object> register(@RequestBody RegisterRequest request) {
 		if (!userService.checkIfUserExists(request.getUsername(), request.getEmail())) {
-			User user = userService.create(request.getUsername(), request.getPassword(), request.getEmail());
+			final User user = userService.create(request.getUsername(), request.getPassword(), request.getEmail());
 			log.info("Successful user registration {}, email={} id={}", user.getUsername(), user.getEmail(), user.getId());
-			return ResponseEntity.ok(RegisterResponse.success());
+			return ResponseEntity.status(HttpStatus.CREATED).build();
 		} else {
-			return ResponseEntity.ok(RegisterResponse.fail("User with provided email or username already exists."));
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("User with provided email or username already exists.");
 		}
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+	public ResponseEntity<Object> login(@RequestBody LoginRequest request) {
 		try {
-			User user = userService.loadUserByEmail(request.getEmail());
+			final User user = userService.loadUserByEmail(request.getEmail());
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword()));
-			String sessionId = sessionRegistry.registerSession(user.getUsername());
-			LoginResponse response = LoginResponse.success(sessionId);
+			final String sessionId = sessionRegistry.registerSession(user.getUsername());
 			log.info("user {} authenticated", user.getUsername());
-			return ResponseEntity.ok(response);
+			return ResponseEntity.ok(new LoginResponse(sessionId));
 		} catch (UserNotFoundException e) {
-			return ResponseEntity.ok(LoginResponse.fail("User not found for email: " + request.getEmail()));
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found for email: " + request.getEmail());
 		}
 	}
 
 	@PostMapping("/logout")
-	public void logout(@RequestHeader Map<String, String> headers) {
+	public ResponseEntity<Object> logout(@RequestHeader Map<String, String> headers) {
 		final String bearer = headers.get("authorization");
-		String sessionId = null;
-		if (!Strings.isNullOrEmpty(bearer) && bearer.length() >= 7) {
-			sessionId = bearer.substring(7);
-		}
-
-		if (sessionId != null && sessionRegistry.removeSession(sessionId) == null) {
-			throw new UserNotFoundException("Session not found for id: " + sessionId);
+		try {
+			final String sessionId = AuthorizationUtil.getToken(bearer);
+			sessionRegistry.removeSession(sessionId);
+			return ResponseEntity.ok().build();
+		} catch (FailedRetrievingAuthorizationToken e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not retrieve token from authorization header");
 		}
 	}
 
 	@PostMapping("/is-authenticated")
-	public void isAuthenticated() {
-		log.info("is-authenticated request");
+	public ResponseEntity<Object> isAuthenticated() {
+		return ResponseEntity.ok().build();
 	}
 }

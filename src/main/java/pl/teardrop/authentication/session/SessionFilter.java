@@ -1,6 +1,5 @@
 package pl.teardrop.authentication.session;
 
-import com.google.common.base.Strings;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pl.teardrop.authentication.exceptions.FailedRetrievingAuthorizationToken;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserService;
 
@@ -36,14 +36,15 @@ public class SessionFilter extends OncePerRequestFilter {
 		final String bearer = request.getHeader(HttpHeaders.AUTHORIZATION);
 		log.debug("Token: {}", bearer);
 
-		if (Strings.isNullOrEmpty(bearer) || bearer.length() <= 7) {
+		String sessionId;
+		try {
+			sessionId = AuthorizationUtil.getToken(bearer);
+		} catch (FailedRetrievingAuthorizationToken e) {
 			log.debug("Invalid token received: {}", bearer);
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			filterChain.doFilter(request, response);
 			return;
 		}
-
-		String sessionId = bearer.substring(7);
 
 		final Session session = sessionRegistry.getSessionForSessionId(sessionId);
 
